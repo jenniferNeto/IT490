@@ -10,7 +10,7 @@ function doLogin($username,$password)
   //database connection
   //create connection
  
-  $conn = new mysqli('127.0.0.1', 'testUser', '12345', 'testdb');
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
 
  
   // Check connection
@@ -22,7 +22,7 @@ function doLogin($username,$password)
 
 
 // lookup username in database
-$query = "SELECT *FROM users where username = '$username' and password = '$password'";
+$query = "SELECT *FROM user where username = '$username' and password = '$password'";
 $result = mysqli_query($conn, $query);  
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);  
         $count = mysqli_num_rows($result);  
@@ -39,12 +39,12 @@ else
 }
 }
 
-function createUser($UserID, $username, $password)
+function createUser($email, $username, $password)
 {
 //database connection
   //create connection
 
-  $conn = new mysqli('127.0.0.1', 'testUser', '12345', 'testdb');
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
 
 
   // Check connection
@@ -55,7 +55,7 @@ function createUser($UserID, $username, $password)
   echo "Connected successfully\n\n";
 
     // lookup username in database      
-        $query = "SELECT *FROM users where username = '$username' and password = '$password'";
+        $query = "SELECT *FROM user where username = '$username' and password = '$password'";
         $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
         $count = mysqli_num_rows($result);
@@ -67,8 +67,8 @@ function createUser($UserID, $username, $password)
         }
         else
         {
-  $registerQuery = "INSERT into users
-  VALUES ('$UserID', '$username', '$password')";
+  $registerQuery = "INSERT INTO user (email, username, password)
+  VALUES ('$email', '$username', '$password')";
 
   $result   = mysqli_query($conn, $registerQuery);
   echo "\nUser created succesfully";
@@ -95,7 +95,7 @@ function requestProcessor($request)
  
   case "create_user":
  echo "Create User request recieved\n\n";
-      return createUser($request['UserID'],$request['username'],$request['password']);
+      return createUser($request['email'],$request['username'],$request['password']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed\n\n");
 }
