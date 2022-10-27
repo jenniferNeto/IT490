@@ -25,7 +25,7 @@ function doLogin($username,$password)
 
 
 // lookup username in database
-$query = "SELECT *FROM user where username = '$username' and password = '$password'";
+$query = "SELECT *FROM users where username = '$username' and password = '$password'";
 $result = mysqli_query($conn, $query);  
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);  
         $count = mysqli_num_rows($result);  
@@ -58,7 +58,7 @@ function createUser($email, $username, $password)
   echo "Connected successfully\n\n";
 
     // lookup username in database      
-        $query = "SELECT *FROM user where username = '$username' and password = '$password'";
+        $query = "SELECT *FROM users where username = '$username' and password = '$password'";
         $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
         $count = mysqli_num_rows($result);
@@ -70,7 +70,7 @@ function createUser($email, $username, $password)
         }
         else
         {
-  $registerQuery = "INSERT INTO user (email, username, password)
+  $registerQuery = "INSERT INTO users (email, username, password)
   VALUES ('$email', '$username', '$password')";
 
   $result   = mysqli_query($conn, $registerQuery);
