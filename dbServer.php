@@ -166,11 +166,10 @@ function seshGen($userID)
   $sessionid = rand(1000, 999999999);
   $addSeshQuery = "UPDATE Systems SET session_ID = '$sessionid', time_stamp = GETDATE() WHERE uid = '$userID'";
   if (mysqli_query($conn, $addSeshQuery)) 
-    echo "Record updated successfully";
   {
     echo "Record updated successfully";
     return $sessionid;
-  } 
+  }
   else 
   {
     publishLog("Error adding/updating session key: " . mysqli_error($conn));
