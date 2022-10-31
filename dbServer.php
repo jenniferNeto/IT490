@@ -53,7 +53,11 @@ function doLogin($username,$password)
     echo "Login succesful!";
 	  $userQuery = "SELECT UID FROM Users WHERE username = '$username'";
     $userID = mysqli_query($conn, $userQuery); 
-    return seshGen($userID);
+    $row = mysqli_fetch_array($userID, MYSQLI_ASSOC);  
+
+    echo json_encode($row['UID']);
+    return seshGen($row['UID']);
+    
 	}
 	else
 	{	
@@ -87,13 +91,13 @@ function createUser($email, $username, $password)
 
         if($count == 1)
         {
-           publishLog("username or password invalid to");
+           publishLog("User already exists, please try with a different name.");
            echo "error msg sent to log file";          
 	        return false;
         }
         else
         {
-	          $registerQuery = "INSERT into users (email, username, password)
+	          $registerQuery = "INSERT into Users (email, username, password)
 		        VALUES ('$email', '$username', '$password')";
 	
 	          $result   = mysqli_query($conn, $registerQuery);	
@@ -104,7 +108,7 @@ function createUser($email, $username, $password)
 function doValidate($sessionid)
 {
 	echo "validating sesh";
-  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_test_db');
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
   //check database for session id
   $seshQuery = "SELECT *FROM Systems where session_ID = '$sessionid'";
   $result = mysqli_query($conn, $seshQuery);
@@ -154,7 +158,6 @@ function publishLog($errorMsg)
 {
     global $channel;
     $logMsg = ($errorMsg. " on " . date("Y.m.d"). " @ ". date("h:i:sa"). " @ ". gethostname());	
-    echo "i like cheese"; 
    //set push msg to error message
     $msg = new AMQPMessage($logMsg);
     // send msg to log file(s)
@@ -163,17 +166,12 @@ function publishLog($errorMsg)
 
 function seshGen($userID)
 {
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
   $sessionid = rand(1000, 999999999);
-  $addSeshQuery = "UPDATE Systems SET session_ID = '$sessionid', time_stamp = GETDATE() WHERE uid = '$userID'";
-  if (mysqli_query($conn, $addSeshQuery)) 
-  {
-    echo "Record updated successfully";
-    return $sessionid;
-  }
-  else 
-  {
-    publishLog("Error adding/updating session key: " . mysqli_error($conn));
-  }
+  $addSeshQuery = "INSERT into Systems (UID, sessions_ID) VALUES ('$userID', '$sessionid')";
+  $result = mysqli_query($conn, $addSeshQuery);
+  return $sessionid;
+    //publishLog("Error adding/updating session key: ");
   
 }
 
