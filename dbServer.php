@@ -125,6 +125,32 @@ function doValidate($sessionid)
   }
 }
 
+function apiData($rawData)
+{
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
+
+  foreach($rawData as $prod)
+  {
+    $PID = $prod['PID'];
+    $name = $prod['name'];
+    $image = $prod['img'];
+    $gender = $prod['gender'];
+    $color = $prod['color'];
+
+    $addDataQuery = "INSERT INTO Products 
+    ('$PID', '$name', '$image', '$gender', '$color')";
+
+    if(mysqli_query($conn, $addDataQuery))
+    {
+      echo "\nproducts added to db yoo";
+    }
+    else
+    {
+      publishLog("products could not be added to db");
+    }
+  }
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -149,7 +175,8 @@ function requestProcessor($request)
 	  echo "Create User request recieved\n\n";
       return createUser($request['email'], $request['username'],$request['password']);
   case "apiData":
-    echo $request['data'];
+    //echo $request['data'];
+    apiData($request['data']);
   
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed\n\n");
