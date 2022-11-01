@@ -55,9 +55,8 @@ function doLogin($username,$password)
     $userID = mysqli_query($conn, $userQuery); 
     $row = mysqli_fetch_array($userID, MYSQLI_ASSOC);  
 
-    echo json_encode($row['UID']);
-    return seshGen($row['UID']);
-    
+    //echo json_encode($row['UID']);
+    return array(true, seshGen($row['UID']));
 	}
 	else
 	{	
@@ -110,16 +109,18 @@ function doValidate($sessionid)
 	echo "validating sesh";
   $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
   //check database for session id
-  $seshQuery = "SELECT *FROM Systems where session_ID = '$sessionid'";
+  $seshQuery = "SELECT *FROM Systems where sessions_ID = '$sessionid'";
   $result = mysqli_query($conn, $seshQuery);
   $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
   $count = mysqli_num_rows($result);
   if($count == 1)
   {
+    echo "sesh is valid :) ";
     return true;
   }
   else
   {
+    echo "boo! sesh not valid! >:( ";
     return false;
   }
 }
@@ -131,6 +132,7 @@ function requestProcessor($request)
   if(!isset($request['type']))
   {
   //create error message
+    echo "unsupported message type";
 	  return "ERROR: unsupported message type";
   }
   switch ($request['type'])
