@@ -430,6 +430,109 @@ function deleteOutfits($data)
   }
 }
 
+function like($data)
+{
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
+  $outfit = $data["name"];
+  $getLikeQuery = "SELECT likes FROM outfits WHERE name = '$outfit'";
+  $result = mysqli_query($conn, $getLikeQuery);
+  print_r($result);
+  $row = mysqli_fetch_array ($result, MYSQLI_ASSOC);
+  print_r($row["likes"]);
+  $like = $row['likes'] + 1;
+  $addLikeQuery = "UPDATE outfits SET likes = '$like' WHERE name = '$outfit'";
+  if(mysqli_query($conn, $addLikeQuery))
+  {
+    echo "\noutfit like +1 \n";
+    publishLog("+1 like for an outfit");
+  }
+  else
+  {
+    echo "\n could not add like for outfit\n";
+  }
+}
+
+function dislike($data)
+{
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
+  $outfit = $data["name"];
+  $getLikeQuery = "SELECT likes FROM outfits WHERE name = '$outfit'";
+  $result = mysqli_query($conn, $getLikeQuery);
+  $row = mysqli_fetch_array ($result, MYSQLI_ASSOC);
+  $like = $row['likes'] - 1;
+  $dislikeQuery = "UPDATE outfits SET likes = '$like' WHERE name = '$outfit'";
+  if(mysqli_query($conn, $dislikeQuery))
+  {
+    echo "\noutfit like -1 \n";
+    publishLog("-1 like for an outfit");
+  }
+  else
+  {
+    echo "\n could not -1 like for outfit\n";
+  }
+}
+
+function getAllOutfits()
+{
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
+  //s$UID = $data['uid'];
+  $getOIDQuery = "SELECT * FROM outfits order by likes desc";
+  $result = mysqli_query($conn, $getOIDQuery);
+  $oids = array();
+  for($i = 0; $i < mysqli_num_rows($result); $i++)
+  {
+    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+    $oids["prod" . $i] = $row;
+  }
+  $output = array();
+  for($i = 0; $i < count($oids); $i++)
+  {
+    $top = $oids["prod". $i]['tops'];
+    $bottom = $oids["prod". $i]['bottoms'];
+    $name = $oids["prod". $i]['name'];
+    print_r($top . $bottom);
+    $getTopInfoQuery = "SELECT img_URL, name FROM Products WHERE img_URL = '$top'";
+    
+    $getBottomInfoQuery = "SELECT img_URL, name FROM Products WHERE img_URL = '$bottom'";
+
+    $getOutfitName = "SELECT name FROM outfits WHERE name = '$name'";
+    $resultTop = mysqli_query($conn, $getTopInfoQuery);
+    
+    $rowTop= mysqli_fetch_array($resultTop, MYSQLI_ASSOC);
+    print_r($rowTop);
+    $resultBottom = mysqli_query($conn, $getBottomInfoQuery);
+
+    $rowBottom = mysqli_fetch_array($resultBottom, MYSQLI_ASSOC);
+    print_r($rowBottom);
+
+    $resultOutfitName = mysqli_query($conn, $getOutfitName);
+    $rowOutfit = mysqli_fetch_array($resultOutfitName, MYSQLI_ASSOC);
+    print_r($rowOutfit);
+
+    $output["prod" . $i]['top'] = $rowTop;
+    $output["prod" . $i]['bottom'] = $rowBottom;
+    $output["prod" . $i]['outfitName'] = $rowOutfit;
+  }
+  //print_r($output);
+  return $output;
+}
+
+function logout($data)
+{
+  $conn = new mysqli('127.0.0.1', 'testuser', '12345', 'main_help_db');
+  $UID = $data["uid"];
+  $deleteSeshQuery = "DELETE FROM Systems WHERE UID = '$UID'";
+
+  if (mysqli_query($conn, $deleteSeshQuery)) 
+  {
+      echo "Deleted session keys for this user";
+  } 
+  else 
+  {
+    publishLog("Error deleting session keys: " . mysqli_error($conn));
+  }
+
+ }
 
 function requestProcessor($request)
 {
@@ -488,6 +591,25 @@ function requestProcessor($request)
   case "deleteOutfit":
     echo "\n delete outfit request recieved";
     return deleteOutfits($request);
+
+  case "like":
+    echo "\n add like request\n";
+    like($request);
+    break;
+
+  case "dislike":
+    echo "\n unlike request\n";
+    dislike($request);
+    break;
+
+  case "getAllOutfits":
+    echo "\n get all outfits request \n";
+    return getAllOutfits($request);
+  
+  case "logout":
+    echo "\n logout request \n";
+    logout($request);
+    break;
 
   case "forumTopics":
     echo "\n get forum topics \n";
