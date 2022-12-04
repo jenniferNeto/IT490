@@ -13,7 +13,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 
 //create connection to rbmq for logging
-$connection = new AMQPStreamConnection('172.23.46.192', '5672', 'test', 'test', 'testHost');
+$connection = new AMQPStreamConnection('127.0.0.1', '5672', 'test', 'test', 'testHost');
 //create channel
 $channel = $connection->channel();
 //connect to logs exchange
